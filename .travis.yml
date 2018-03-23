@@ -8,6 +8,10 @@ matrix:
   include:
     - php: 5.6
       env:
+        - testbench=3.2.x
+        - phpunit=5.0.x
+    - php: 5.6
+      env:
         - testbench=3.3.x
         - phpunit=5.0.x
     - php: 5.6

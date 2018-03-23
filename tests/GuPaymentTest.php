@@ -61,6 +61,8 @@ class GuPaymentTest extends TestCase
             $table->timestamp('ends_at')->nullable();
             $table->timestamps();
         });
+
+        $this->faker = $this->faker('pt_BR');
     }
 
     public function tearDown()
@@ -238,7 +240,7 @@ class GuPaymentTest extends TestCase
         $user = $this->createUser();
 
         try {
-            $user->createAsIuguCustomer(null);
+            $user->createAsIuguCustomer();
             $createdCard = $user->createCard($token = $this->getTestToken());
 
             $card = $user->findCard($createdCard->id);
@@ -256,7 +258,7 @@ class GuPaymentTest extends TestCase
     {
         $user = $this->createUser();
 
-        $user->createAsIuguCustomer(null);
+        $user->createAsIuguCustomer();
 
         $this->assertNull($user->findCard(1));
     }
@@ -266,7 +268,7 @@ class GuPaymentTest extends TestCase
         $user = $this->createUser();
 
         try {
-            $user->createAsIuguCustomer(null);
+            $user->createAsIuguCustomer();
             $cardCreated = $user->createCard($token = $this->getTestToken());
 
             $user->deleteCard($cardCreated);
@@ -285,7 +287,7 @@ class GuPaymentTest extends TestCase
     {
         $user = $this->createUser();
 
-        $user->createAsIuguCustomer(null);
+        $user->createAsIuguCustomer();
         $createdCard = $user->createCard($this->getTestToken())->asIuguCard();
         $foundCard = $user->findCardOrFail($createdCard->id)->asIuguCard();
 
@@ -300,7 +302,7 @@ class GuPaymentTest extends TestCase
     {
         $user = $this->createUser();
 
-        $user->createAsIuguCustomer(null);
+        $user->createAsIuguCustomer();
         $firstCard = $user->createCard($this->getTestToken());
         $secondCard = $user->createCard($this->getTestTokenMasterCard());
 
@@ -324,7 +326,7 @@ class GuPaymentTest extends TestCase
         $user = $this->createUser();
 
         try {
-            $user->createAsIuguCustomer(null);
+            $user->createAsIuguCustomer();
             $createdCard = $user->createCard($token = $this->getTestToken());
         } catch (\IuguObjectNotFound $e) {
             $this->fail('Service unavailable.');
@@ -333,7 +335,7 @@ class GuPaymentTest extends TestCase
         $anotherUser = $this->createUser();
 
         try {
-            $anotherUser->createAsIuguCustomer(null);
+            $anotherUser->createAsIuguCustomer();
             $anotherUser->findCardOrFail($createdCard->id);
         } catch (Exception $e) {
             $this->assertInstanceOf(NotFoundHttpException::class, $e);
@@ -345,7 +347,7 @@ class GuPaymentTest extends TestCase
         $user = $this->createUser();
 
         try {
-            $user->createAsIuguCustomer(null);
+            $user->createAsIuguCustomer();
             $card = $user->createCard($token = $this->getTestTokenMasterCard());
 
             $charge = $user->charge(250, [
@@ -362,11 +364,77 @@ class GuPaymentTest extends TestCase
         $this->assertEquals($user->iugu_id, $charge->customer_id);
     }
 
+    public function testCreatingOneSingleChargeWithBankSlipMethod()
+    {
+        $user = $this->createUser();
+
+        try {
+            $user->createAsIuguCustomer();
+            $charge = $user->charge(250, [
+                'method' => 'bank_slip',
+                'payer' => [
+                    'cpf_cnpj' => $this->faker->unique()->cpf,
+                    'name' => $this->faker->firstName,
+                    'email' => $this->faker->unique()->safeEmail,
+                    'phone_prefix' => $this->faker->areaCode,
+                    'phone' => $this->faker->cellphone,
+                    'address' => [
+                        'street'     => $this->faker->streetName,
+                        'number'     => $this->faker->buildingNumber,
+                        'district'   => $this->faker->streetAddress,
+                        'city'       => $this->faker->city,
+                        'state'      => $this->faker->stateAbbr,
+                        'zip_code'   => '72603-212',
+                        'complement' => $this->faker->secondaryAddress,
+                    ]
+                ]
+            ]);
+        } catch (\IuguObjectNotFound $e) {
+            $this->fail('Service unavailable.');
+        }
+
+        $this->assertTrue($charge->success);
+        $this->assertEquals($charge->method, 'bank_slip');
+    }
+
+    public function testSingleBankSlipChargeWithDefaultPaymentCardDefined()
+    {
+        $user = $this->createUser();
+
+        try {
+            $user->createAsIuguCustomer($this->getTestToken());
+            $charge = $user->charge(250, [
+                'method' => 'bank_slip',
+                'payer' => [
+                    'cpf_cnpj' => $this->faker->unique()->cpf,
+                    'name' => $this->faker->firstName,
+                    'email' => $this->faker->unique()->safeEmail,
+                    'phone_prefix' => $this->faker->areaCode,
+                    'phone' => $this->faker->cellphone,
+                    'address' => [
+                        'street'     => $this->faker->streetName,
+                        'number'     => $this->faker->buildingNumber,
+                        'district'   => $this->faker->streetAddress,
+                        'city'       => $this->faker->city,
+                        'state'      => $this->faker->stateAbbr,
+                        'zip_code'   => '72603-212',
+                        'complement' => $this->faker->secondaryAddress,
+                    ]
+                ]
+            ]);
+        } catch (\IuguObjectNotFound $e) {
+            $this->fail('Service unavailable.');
+        }
+
+        $this->assertTrue($charge->success);
+        $this->assertEquals($charge->method, 'bank_slip');
+    }
+
     public function testCreatingOneSingleChargeWithoutPaymentSource()
     {
         $user = $this->createUser();
 
-        $user->createAsIuguCustomer(null);
+        $user->createAsIuguCustomer();
 
         try {
             $user->charge(100);
@@ -512,8 +580,8 @@ class GuPaymentTest extends TestCase
     protected function createUser()
     {
         return User::create([
-            'email' => $this->faker()->email,
-            'name' => $this->faker()->name,
+            'email' => $this->faker->email,
+            'name' => $this->faker->name,
         ]);
     }
 
