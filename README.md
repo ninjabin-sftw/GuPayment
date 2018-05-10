@@ -183,7 +183,7 @@ $user->newSubscription('main', 'gold')
             ->trialDays(10)
             ->create($creditCardToken);
 ```
-O usuário só sebra cobrado, após o período trial. Lembrando que para verificar se um usuário está com a assinatura no período trial, basta chamar o método `onTrial`:
+O usuário só será cobrado, após o período trial. Lembrando que para verificar se um usuário está com a assinatura no período trial, basta chamar o método `onTrial`:
 ```php
 if ($user->subscription('main')->onTrial()) {
     //
