@@ -10,6 +10,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class WebhookController extends Controller
 {
+    protected $iuguSubscriptionModelColumn;
+
+    public function __construct()
+    {
+        $this->iuguSubscriptionModelColumn = getenv('IUGU_SUBSCRIPTION_MODEL_ID_COLUMN') ?: config('services.iugu.subscription_model_id_column', 'iugu__id');
+    }
+
     /**
      * Handle a Iugu webhook call.
      *
@@ -41,7 +48,7 @@ class WebhookController extends Controller
      */
     protected function handleSubscriptionSuspended(array $payload)
     {
-        $subscription = Subscription::where('iugu_id', $payload['data']['id'])->first();
+        $subscription = Subscription::where($this->iuguSubscriptionModelColumn, $payload['data']['id'])->first();
 
         $subscription->markAsCancelled();
 
@@ -56,7 +63,7 @@ class WebhookController extends Controller
      */
     protected function handleSubscriptionExpired(array $payload)
     {
-        $subscription = Subscription::where('iugu_id', $payload['data']['id'])->first();
+        $subscription = Subscription::where($this->iuguSubscriptionModelColumn, $payload['data']['id'])->first();
 
         $subscription->fill(['ends_at' => Carbon::createFromFormat('Y-m-d', $payload['data']['expires_at'])])->save();
 

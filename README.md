@@ -18,27 +18,26 @@ Adicione o ServiceProvider em config/app.php
 Potelo\GuPayment\GuPaymentServiceProvider::class,
 ```
 
-Antes de usar o GuPayment você precisa preparar o banco de dados. Você precisa adicionar algumas colunas no seu modelo
-de Usuario e criar uma tabela para as assinaturas com o nome 'subscriptions'.
+Agora, configure as variáveis utilizadas pelo GuPayment no seu .env:
 
-```php
-Schema::table('[SUA_TABELA_DE_USUARIO]', function ($table) {
-    $table->string('iugu_id')->nullable();
-});
-
-Schema::create('[SUA_TABELA_DE_ASSINATURAS]', function ($table) {
-    $table->increments('id');
-    $table->integer('user_id');
-    $table->string('name');
-    $table->string('iugu_id');
-    $table->string('iugu_plan');
-    $table->timestamp('trial_ends_at')->nullable();
-    $table->timestamp('ends_at')->nullable();
-    $table->timestamps();
-});
+```
+IUGU_APIKEY=SUA_CHAVE
+IUGU_ID=SEU_ID_IUGU
+GUPAYMENT_SIGNATURE_TABLE=subscriptions
+IUGU_MODEL=User
+IUGU_MODEL_FOREIGN_KEY=user_id
+IUGU_USER_MODEL_COLUMN=iugu_id
+IUGU_SUBSCRIPTION_MODEL_ID_COLUMN=iugu_id
+IUGU_SUBSCRIPTION_MODEL_PLAN_COLUMN=iugu_plan
 ```
 
-Uma vez criado os migrations, basta rodar o comando php artisan migrate.
+Antes de usar o GuPayment você precisa preparar o banco de dados. Primeiro você tem que publicar o migration.
+
+```
+php artisan vendor:publish --tag=migrations
+```
+
+Caso precise modificar ou acrescentar colunas na tabela de assinatura, basta editar os migrations publicados. Depois, basta rodar o comando php artisan migrate.
 
 Vamos agora adicionar o Trait ao seu modelo do usuário.
 
@@ -66,7 +65,13 @@ e no seu arquivo .env você coloca as informações do nome da tabela e da sua c
 
 ```
 IUGU_APIKEY=SUA_CHAVE
-GUPAYMENT_SIGNATURE_TABLE=usuario_assinatura
+IUGU_ID=SEU_ID_IUGU
+GUPAYMENT_SIGNATURE_TABLE=subscriptions
+IUGU_MODEL=User
+IUGU_MODEL_FOREIGN_KEY=user_id
+IUGU_USER_MODEL_COLUMN=service_id
+IUGU_SUBSCRIPTION_MODEL_ID_COLUMN=service_id
+IUGU_SUBSCRIPTION_MODEL_PLAN_COLUMN=service_plan
 ```
 
 ## Assinaturas

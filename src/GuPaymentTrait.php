@@ -46,7 +46,7 @@ trait GuPaymentTrait
         }
 
         if (! array_key_exists('customer_id', $options) && $this->hasIuguId()) {
-            $options['customer_id'] = $this->iugu_id;
+            $options['customer_id'] = $this->getIuguUserId();
         }
 
         if (! array_key_exists('token', $options) &&
@@ -142,7 +142,7 @@ trait GuPaymentTrait
             $options
         );
 
-        $this->iugu_id = $customer->id;
+        $this->setUserIuguId($customer->id);
 
         $this->save();
 
@@ -277,7 +277,9 @@ trait GuPaymentTrait
      */
     public function onPlan($plan)
     {
-        $onPlan = $this->subscriptions->where('iugu_plan', $plan)->first();
+        $iuguSubscriptionModelPlanColumn = getenv('IUGU_SUBSCRIPTION_MODEL_PLAN_COLUMN') ?: config('services.iugu.subscription_model_plan_column', 'iugu_plan');
+
+        $onPlan = $this->subscriptions->where($iuguSubscriptionModelPlanColumn, $plan)->first();
 
         return ! is_null($onPlan);
     }
@@ -291,6 +293,8 @@ trait GuPaymentTrait
      */
     public function subscribed($subscription = 'default', $plan = null)
     {
+        $iuguSubscriptionModelPlanColumn = getenv('IUGU_SUBSCRIPTION_MODEL_PLAN_COLUMN') ?: config('services.iugu.subscription_model_plan_column', 'iugu_plan');
+
         $subscription = $this->subscription($subscription);
 
         if (is_null($subscription)) {
@@ -302,7 +306,7 @@ trait GuPaymentTrait
         }
 
         return $subscription->valid() &&
-        $subscription->iugu_plan === $plan;
+        $subscription->{$iuguSubscriptionModelPlanColumn} === $plan;
     }
 
     /**
@@ -391,7 +395,7 @@ trait GuPaymentTrait
      */
     public function hasIuguId()
     {
-        return ! is_null($this->iugu_id);
+        return ! is_null($this->getIuguUserId());
     }
 
     /**
@@ -435,13 +439,13 @@ trait GuPaymentTrait
      */
     public function asIuguCustomer()
     {
-        if (! $this->iugu_id) {
+        if (! $this->getIuguUserId()) {
             throw new InvalidArgumentException(class_basename($this).' is not a Iugu customer. See the createAsIuguCustomer method.');
         }
 
         Iugu::setApiKey($this->getApiKey());
 
-        return IuguCustomer::fetch($this->iugu_id);
+        return IuguCustomer::fetch($this->getIuguUserId());
     }
 
     /**
@@ -460,6 +464,30 @@ trait GuPaymentTrait
         }
 
         return config('services.iugu.key');
+    }
+
+    /**
+     * Get the Iugu User Id.
+     *
+     * @return string
+     */
+    public function getIuguUserId()
+    {
+        $column = getenv('IUGU_USER_MODEL_COLUMN') ?: config('services.iugu.user_model_column', 'iugu_id');
+
+        return $this->{$column};
+    }
+
+    /**
+     * Set the Iugu User Id.
+     *
+     * @return string
+     */
+    public function setUserIuguId($iuguId)
+    {
+        $column = getenv('IUGU_USER_MODEL_COLUMN') ?: config('services.iugu.user_model_column', 'iugu_id');
+
+        $this->{$column} = $iuguId;
     }
 
     /**

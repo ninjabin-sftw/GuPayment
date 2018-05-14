@@ -18,6 +18,10 @@ class GuPaymentServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../resources/views' => base_path('resources/views/vendor/gu-payment'),
         ]);
+
+        $this->publishes([
+            __DIR__.'/migrations' => database_path('migrations')
+        ], 'migrations');
     }
 
     /**

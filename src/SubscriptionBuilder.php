@@ -111,6 +111,9 @@ class SubscriptionBuilder
      */
     public function create($token = null, array $options = [])
     {
+        $iuguSubscriptionModelIdColumn = getenv('IUGU_SUBSCRIPTION_MODEL_ID_COLUMN') ?: config('services.iugu.subscription_model_id_column', 'iugu_id');
+        $iuguSubscriptionModelPlanColumn = getenv('IUGU_SUBSCRIPTION_MODEL_PLAN_COLUMN') ?: config('services.iugu.subscription_model_plan_column', 'iugu_plan');
+
         $customer = $this->getIuguCustomer($token, $options);
 
         $subscriptionIugu = $this->user->createIuguSubscription($this->buildPayload($customer->id));
@@ -127,8 +130,8 @@ class SubscriptionBuilder
 
         $subscription = new Subscription();
         $subscription->name = $this->name;
-        $subscription->iugu_id =  $subscriptionIugu->id;
-        $subscription->iugu_plan =  $this->plan;
+        $subscription->{$iuguSubscriptionModelIdColumn} =  $subscriptionIugu->id;
+        $subscription->{$iuguSubscriptionModelPlanColumn} =  $this->plan;
         $subscription->trial_ends_at = $trialEndsAt;
         $subscription->ends_at = null;
 
@@ -151,7 +154,7 @@ class SubscriptionBuilder
      */
     protected function getIuguCustomer($token = null, array $options = [])
     {
-        if (! $this->user->iugu_id) {
+        if (! $this->user->getIuguUserId()) {
             $customer = $this->user->createAsIuguCustomer(
                 $token,
                 array_merge($options, array_filter(['coupon' => $this->coupon]))

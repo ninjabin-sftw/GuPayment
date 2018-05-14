@@ -8,6 +8,12 @@ use Symfony\Component\Console\Exception\LogicException;
 
 class Subscription extends Model
 {
+    /**
+     * The attributes that are not mass assignable.
+     *
+     * @var array
+     */
+    protected $guarded = [];
 
     /**
      * The attributes that should be mutated to dates.
@@ -19,14 +25,16 @@ class Subscription extends Model
         'created_at', 'updated_at',
     ];
 
-    protected $fillable = [
-        'iugu_plan', 'ends_at'
-    ];
+    protected $iuguSubscriptionModelIdColumn;
+
+    protected $iuguSubscriptionModelPlanColumn;
 
     public function __construct()
     {
         parent::__construct();
         $this->table = getenv('GUPAYMENT_SIGNATURE_TABLE') ?: config('services.iugu.signature_table', 'subscriptions');
+        $this->iuguSubscriptionModelIdColumn = getenv('IUGU_SUBSCRIPTION_MODEL_ID_COLUMN') ?: config('services.iugu.subscription_model_id_column', 'iugu_id');
+        $this->iuguSubscriptionModelPlanColumn = getenv('IUGU_SUBSCRIPTION_MODEL_PLAN_COLUMN') ?: config('services.iugu.subscription_model_plan_column', 'iugu_plan');
     }
 
     /**
@@ -112,8 +120,9 @@ class Subscription extends Model
 
         //$this->user->invoice();
 
+
         $this->fill([
-            'iugu_plan' => $plan,
+            $this->iuguSubscriptionModelPlanColumn => $plan,
             'ends_at' => null,
         ])->save();
 
@@ -206,6 +215,6 @@ class Subscription extends Model
      */
     public function asIuguSubscription()
     {
-        return $this->user->getIuguSubscription($this->iugu_id);
+        return $this->user->getIuguSubscription($this->{$this->iuguSubscriptionModelIdColumn});
     }
 }
