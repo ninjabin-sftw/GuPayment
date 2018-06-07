@@ -57,7 +57,8 @@ e o nome da tabela utilizada para gerenciar as assinaturas, a mesma escolhida na
 'iugu' => [
     'model'  => App\User::class,
     'key' => env('IUGU_APIKEY'),
-    'signature_table' => env('GUPAYMENT_SIGNATURE_TABLE')
+    'signature_table' => env('GUPAYMENT_SIGNATURE_TABLE'),
+    'model_foreign_key' => env('IUGU_MODEL_FOREIGN_KEY'),
 ]
 ```
 
