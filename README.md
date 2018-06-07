@@ -50,8 +50,8 @@ class User extends Authenticatable
 }
 ```
 
-Agora vamos adicionar em config/services.php duas configurações. A classe do usuário e o nome da tabela
-utilizada para gerenciar as assinaturas, a mesma escolhida na criação do migration
+Agora vamos adicionar em config/services.php duas configurações. A classe do usuário, sua chave de api que o Iugu fornece 
+e o nome da tabela utilizada para gerenciar as assinaturas, a mesma escolhida na criação do migration.
 
 ```php
 'iugu' => [
@@ -59,19 +59,6 @@ utilizada para gerenciar as assinaturas, a mesma escolhida na criação do migra
     'key' => env('IUGU_APIKEY'),
     'signature_table' => env('GUPAYMENT_SIGNATURE_TABLE')
 ]
-```
-
-e no seu arquivo .env você coloca as informações do nome da tabela e da sua chave de api que o Iugu fornece.
-
-```
-IUGU_APIKEY=SUA_CHAVE
-IUGU_ID=SEU_ID_IUGU
-GUPAYMENT_SIGNATURE_TABLE=subscriptions
-IUGU_MODEL=User
-IUGU_MODEL_FOREIGN_KEY=user_id
-IUGU_USER_MODEL_COLUMN=service_id
-IUGU_SUBSCRIPTION_MODEL_ID_COLUMN=service_id
-IUGU_SUBSCRIPTION_MODEL_PLAN_COLUMN=service_plan
 ```
 
 ## Assinaturas
