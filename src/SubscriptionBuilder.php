@@ -51,6 +51,8 @@ class SubscriptionBuilder
 
     private $charge_on_success = false;
 
+    protected $lastError = null;
+
     /**
      * Create a new subscription builder instance.
      *
@@ -116,9 +118,15 @@ class SubscriptionBuilder
 
         $customer = $this->getIuguCustomer($token, $options);
 
+        if (isset($customer->errors)) {
+            $this->lastError = $customer->errors;
+            return false;
+        }
+
         $subscriptionIugu = $this->user->createIuguSubscription($this->buildPayload($customer->id));
 
         if (isset($subscriptionIugu->errors)) {
+            $this->lastError = $subscriptionIugu->errors;
             return false;
         }
 
@@ -217,5 +225,15 @@ class SubscriptionBuilder
         $this->charge_on_success = true;
 
         return $this;
+    }
+
+    /**
+     * Get last error
+     *
+     * @return null
+     */
+    public function getLastError()
+    {
+        return $this->lastError;
     }
 }

@@ -142,6 +142,11 @@ trait GuPaymentTrait
             $options
         );
 
+        // If exists error, return the object with the errors immediately
+        if (isset($customer->errors)) {
+            return $customer;
+        }
+
         $this->setUserIuguId($customer->id);
 
         $this->save();
@@ -306,7 +311,7 @@ trait GuPaymentTrait
         }
 
         return $subscription->valid() &&
-        $subscription->{$iuguSubscriptionModelPlanColumn} === $plan;
+            $subscription->{$iuguSubscriptionModelPlanColumn} === $plan;
     }
 
     /**
@@ -320,8 +325,8 @@ trait GuPaymentTrait
         return $this->subscriptions->sortByDesc(function ($value) {
             return $value->created_at->getTimestamp();
         })
-        ->where('name', $subscription)
-        ->first();
+            ->where('name', $subscription)
+            ->first();
     }
 
     /**
