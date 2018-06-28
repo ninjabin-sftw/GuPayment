@@ -499,13 +499,13 @@ trait GuPaymentTrait
      * Update customer's credit card.
      *
      * @param string $token
-     * @return void
+     * @return \Iugu_Customer
      */
     public function updateCard($token)
     {
         $customer = $this->asIuguCustomer();
 
-        $customer->payment_methods()->create([
+        return $customer->payment_methods()->create([
             "description" => "Credit card",
             "token" => $token,
             "set_as_default" => true
