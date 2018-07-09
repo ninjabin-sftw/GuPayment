@@ -22,7 +22,7 @@ class GuPaymentTest extends TestCase
     protected $iuguUserModelColumn;
 
     protected $iuguSubscriptionModelIdColumn;
-    
+
     protected $iuguSubscriptionModelPlanColumn;
 
     public static function setUpBeforeClass()
@@ -94,7 +94,7 @@ class GuPaymentTest extends TestCase
         $user = $this->createUser();
 
         // Create Subscription
-        $user->newSubscription('main', 'gold')->create($this->getTestToken());
+        $user->newSubscription('main', 'gold')->payWith('credit_card')->create($this->getTestToken());
 
         $this->assertEquals(1, $user->subscriptions()->count());
         $this->assertNotNull($user->subscription('main')->{$this->iuguSubscriptionModelIdColumn});

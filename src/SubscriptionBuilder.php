@@ -49,9 +49,17 @@ class SubscriptionBuilder
      */
     protected $coupon;
 
-    private $charge_on_success = false;
+    /**
+     * @var bool
+     */
+    private $chargeOnSuccess = false;
 
     protected $lastError = null;
+
+    /**
+     * @var string
+     */
+    private $payableWith = 'all';
 
     /**
      * Create a new subscription builder instance.
@@ -199,8 +207,9 @@ class SubscriptionBuilder
             'plan_identifier' => $this->plan,
             'expires_at' => $this->getTrialEndForPayload(),
             'customer_id' => $customerId,
-            'only_on_charge_success' => $this->charge_on_success,
-            'custom_variables' => $customVariables
+            'only_on_charge_success' => $this->chargeOnSuccess,
+            'custom_variables' => $customVariables,
+            'payable_with' => $this->payableWith
         ]);
     }
 
@@ -222,7 +231,20 @@ class SubscriptionBuilder
 
     public function chargeOnSuccess()
     {
-        $this->charge_on_success = true;
+        $this->chargeOnSuccess = true;
+
+        return $this;
+    }
+
+    /**
+     * Choose the payable method
+     *
+     * @param string $method
+     * @return $this
+     */
+    public function payWith($method = 'all')
+    {
+        $this->payableWith = $method;
 
         return $this;
     }
