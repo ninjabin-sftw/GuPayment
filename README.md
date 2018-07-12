@@ -332,7 +332,7 @@ price_cents = Valor do primeiro parâmetro
 Sinta-se livre para adicionar seus próprios items como preferir no segundo parâmetro:
 
 ```
-user->charge(null, [
+$user->charge(null, [
     'items' => [
         ['description' => 'Primeiro Item', 'quantity' => 10, 'price_cents' => 200],
         ['description' => 'Segundo Item', 'quantity' => 2, 'price_cents' => 200],
@@ -342,3 +342,11 @@ user->charge(null, [
 
 OBS: Se um array de items for passado no segundo argumento o item padrão não será adicionado.
 
+
+## Reembolsar Fatura
+
+Para reembolsar uma fatura utilize o método `refund`.
+```php
+// Iugu aceita cobranças em centavos
+$user->refund($invoiceId);
+```

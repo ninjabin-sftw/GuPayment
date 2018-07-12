@@ -485,7 +485,7 @@ trait GuPaymentTrait
 
     /**
      * Set the Iugu User Id.
-     *
+     * @param $iuguId
      * @return string
      */
     public function setUserIuguId($iuguId)
@@ -510,5 +510,18 @@ trait GuPaymentTrait
             "token" => $token,
             "set_as_default" => true
         ]);
+    }
+
+    /**
+     * Refund an invoice.
+     *
+     * @param string $id the invoice id
+     * @return bool
+     */
+    public function refund($id)
+    {
+        $iuguInovice = $this->findInvoice($id)->asIuguInvoice();
+
+        return $iuguInovice->refund();
     }
 }

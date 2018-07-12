@@ -592,6 +592,23 @@ class GuPaymentTest extends TestCase
         $this->assertEquals($charge->items[2]['price_cents'], 150);
     }
 
+    public function testRefundInvoice()
+    {
+        $user = $this->createUser();
+
+        try {
+            $user->createAsIuguCustomer($this->getTestToken());
+            $charge = $user->charge(100);
+        } catch (\IuguObjectNotFound $e) {
+            $this->fail('Service unavailable');
+        }
+
+        $status = $user->refund($charge->invoice_id);
+
+        $this->assertTrue($charge->success);
+        $this->assertTrue($status);
+    }
+
     protected function createUser()
     {
         return User::create([
