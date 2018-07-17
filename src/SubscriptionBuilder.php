@@ -179,7 +179,14 @@ class SubscriptionBuilder
             $customer = $this->user->asIuguCustomer();
 
             if ($token) {
-                $this->user->updateCard($token);
+                $paymentMethod = $this->user->updateCard($token);
+
+                // If exists error, return the object with the errors immediately
+                if (isset($paymentMethod->errors)) {
+                    $customer->errors = $paymentMethod->errors;
+
+                    return $customer;
+                }
             }
         }
 

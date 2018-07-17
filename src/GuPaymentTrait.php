@@ -155,7 +155,14 @@ trait GuPaymentTrait
         // token that was provided to this method. This will allow us to bill users
         // when they subscribe to plans or we need to do one-off charges on them.
         if (! is_null($token)) {
-            $this->updateCard($token);
+            $paymentMethod = $this->updateCard($token);
+
+            // If exists error, return the object with the errors immediately
+            if (isset($paymentMethod->errors)) {
+                $customer->errors = $paymentMethod->errors;
+
+                return $customer;
+            }
         }
 
         return $customer;
