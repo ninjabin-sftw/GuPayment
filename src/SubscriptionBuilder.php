@@ -54,12 +54,25 @@ class SubscriptionBuilder
      */
     private $chargeOnSuccess = false;
 
+    /**
+     * @var null
+     */
     protected $lastError = null;
+
+    /**
+     * @var null
+     */
+    protected $lr = null;
 
     /**
      * @var string
      */
     private $payableWith = 'all';
+
+    /**
+     * @var bool
+     */
+    private $validateCard = false;
 
     /**
      * Create a new subscription builder instance.
@@ -179,14 +192,33 @@ class SubscriptionBuilder
             $customer = $this->user->asIuguCustomer();
 
             if ($token) {
-                $paymentMethod = $this->user->updateCard($token);
+                $this->user->updateCard($token);
+            }
+        }
 
-                // If exists error, return the object with the errors immediately
-                if (isset($paymentMethod->errors)) {
-                    $customer->errors = $paymentMethod->errors;
+        // If has token and validate card
+        if ($token && $this->validateCard) {
+            $iuguCharge = $this->user->charge(100, [
+                'items' => [
+                    ['description' => 'Verificação do cartão de crédito.', 'quantity' => 1, 'price_cents' => 100],
+                ]
+            ]);
 
-                    return $customer;
+            // If ok, refund
+            if ($iuguCharge->success) {
+                $this->user->refund($iuguCharge->invoice_id);
+            } else {
+                if (isset($iuguCharge->errors)) {
+                    $customer->errors = $iuguCharge->errors;
+                } else {
+                    $customer->errors = $iuguCharge->message;
+
+                    if (isset($iuguCharge->LR)) {
+                        $this->lr = $iuguCharge->LR;
+                    }
                 }
+
+                return $customer;
             }
         }
 
@@ -257,6 +289,16 @@ class SubscriptionBuilder
     }
 
     /**
+     * Charge R$ 1,00 and refund to check if the creditcard is valid
+     */
+    public function validateCard()
+    {
+        $this->validateCard = true;
+
+        return $this;
+    }
+
+    /**
      * Get last error
      *
      * @return null
@@ -265,4 +307,13 @@ class SubscriptionBuilder
     {
         return $this->lastError;
     }
+
+    /**
+     * If the error contains LR, keep in a variable
+     */
+    public function getLR()
+    {
+        return $this->lr;
+    }
+
 }
