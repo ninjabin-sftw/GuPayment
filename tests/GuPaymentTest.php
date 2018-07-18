@@ -7,8 +7,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 use Illuminate\Support\Collection;
-use Potelo\GuPayment\Tests\TestCase;
-use Potelo\GuPayment\Tests\WithFaker;
 use Potelo\GuPayment\Tests\Fixtures\User;
 use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Eloquent\Model as Eloquent;
