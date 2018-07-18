@@ -7,7 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 use Illuminate\Support\Collection;
-use Potelo\GuPayment\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 use Potelo\GuPayment\Tests\WithFaker;
 use Potelo\GuPayment\Tests\Fixtures\User;
 use Illuminate\Database\Capsule\Manager as DB;
@@ -607,6 +607,19 @@ class GuPaymentTest extends TestCase
 
         $this->assertTrue($charge->success);
         $this->assertTrue($status);
+    }
+
+    public function testValidateCardWithTrial()
+    {
+        $user = $this->createUser();
+
+        // Create Subscription
+        $user->newSubscription('main', 'gold')->validateCard()->create($this->getTestToken());
+
+        $this->assertEquals(1, $user->subscriptions()->count());
+        $this->assertEquals(1, $user->invoices(true)->count());
+        $this->assertEquals('refunded', $user->invoices(true)->first()->status);
+        $this->assertEquals(100, $user->invoices(true)->first()->total_cents);
     }
 
     protected function createUser()

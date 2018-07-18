@@ -382,6 +382,39 @@ trait GuPaymentTrait
     }
 
     /**
+     * Get a collection of the current subsctiption's invoices.
+     *
+     * @param  bool  $includePending
+     * @param  array  $parameters
+     * @return \Illuminate\Support\Collection
+     */
+    public function subscriptionInvoices($includePending = false, $parameters = [])
+    {
+        $invoices = [];
+
+        $customer = $this->asIuguCustomer();
+
+        $parameters = array_merge(['limit' => 24, 'customer_id' => $customer->id], $parameters);
+
+        Iugu::setApiKey($this->getApiKey());
+
+        $iuguInvoices = IuguInvoice::search($parameters)->results();
+
+        // Here we will loop through the Iugu invoices and create our own custom Invoice
+        // instances that have more helper methods and are generally more convenient to
+        // work with than the plain Iugu objects are. Then, we'll return the array.
+        if (! is_null($iuguInvoices)) {
+            foreach ($iuguInvoices as $invoice) {
+                if ($invoice->status == 'paid' || $includePending) {
+                    $invoices[] = new Invoice($this, $invoice);
+                }
+            }
+        }
+
+        return new Collection($invoices);
+    }
+
+    /**
      * Find an invoice by ID.
      *
      * @param  string  $id

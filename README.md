@@ -77,6 +77,7 @@ O primeiro argumento deve ser o nome da assinatura. Esse nome não será utiliza
 O método `create` automaticamente criará uma assinatura no Iugu.com e atualizará o seu banco de dados com o ID do cliente referente ao Iugu e outras informações relevantes. Você pode chamar o `create` sem passar nenhum parâmetro ou informar o token do cartão de crédito para que o usuário tenha uma forma de pagamento padrão. Veja como gerar o token em [iugu.js](https://iugu.com/referencias/iugu-js)
 
 Caso queira que a assinatura seja criada apenas após a comprovação do pagamento, basta chamar o método  `chargeOnSuccess` após `newSubscription`. **IMPORTANTE**: Esse modo de criar uma assinatura só funciona para o cliente que tenha um método de pagamento padrão, não funciona com boleto.
+
 ```php
 $user = User::find(1);
 
@@ -84,6 +85,7 @@ $user->newSubscription('main', 'gold')
 ->chargeOnSuccess()
 ->create($creditCardToken);
 ```
+
 #### Dados adicionais
 Se você desejar adicionar informações extras ao usuário e assinatura, basta passar um terceiro parâmetro no método `newSubscription` para informações adicionais da assinatura e/ou um segundo parâmetro no método `create` para informações adicionais do cliente:
 ```php
@@ -96,6 +98,32 @@ $user->newSubscription('main', 'gold', ['adicional_assinatura' => 'boa assinatur
 	 ]);
 ```
 Para mais informações dos campos que são suportados pelo Iugu confira a [Documentação oficial](https://iugu.com/referencias/api#assinaturas)
+
+### Tratamento de erros
+
+Caso algum erro seja gerado no Iugu, é possível identificar esses erros pelo método `getLastError` do SubscriptionBuilder:
+
+```php
+$user = User::find(1);
+
+$subscriptionBuilder = $user->newSubscription('main', 'gold');
+
+$subscription = $subscriptionBuilder->trialDays(20)->create($creditCardToken);
+
+if ($subscription) {
+    // TUDO ok
+} else {
+    $erros = $subscriptionBuilder->getLastError();
+    
+    if (is_array($erros)) {
+        // array
+    } else {
+        // string
+    }
+}
+```
+
+O erro retornado pelo iugu, pode ser um array ou uma string.
 
 ### Checando status da assinatura
 
@@ -182,6 +210,19 @@ if ($user->subscription('main')->onTrial()) {
     //
 }
 ```
+
+O método `chargeOnSuccess` não funciona na criação de assinatura com trial. Caso queira validar o cartão de crédito
+do usuário, você pode utilizar o método `validateCard` na criação da assinatura. O que vai ser feito no iugu é uma cobrança
+de R$ 1,00 e depois o estorno dessa cobrança. Caso o pagamento seja realizado com sucesso, a assinatura é criada:
+
+```
+$user = $this->createUser();
+
+// Create Subscription
+$user->newSubscription('main', 'gold')->validateCard()->create($this->getTestToken());
+```
+
+
 ## Tratando os gatilhos (ou Webhooks)
 [Gatilhos (ou Webhooks)](https://iugu.com/referencias/gatilhos) são endereços (URLs) para onde a Iugu dispara avisos (Via método POST) para certos eventos que ocorrem em sua conta. Por exemplo, se uma assinatura do usuário for cancelada e você precisar registrar isso em seu banco, você pode usar o gatilho. Para utilizar você precisa apontar uma rota para o método `handleWebhook`, a mesma rota que você configurou no seu painel do Iugu:
 ```php
