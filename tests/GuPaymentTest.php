@@ -612,7 +612,7 @@ class GuPaymentTest extends TestCase
         $user = $this->createUser();
 
         // Create Subscription
-        $user->newSubscription('main', 'gold')->validateCard()->create($this->getTestToken());
+        $user->newSubscription('main', 'gold')->validateCard()->trialDays(30)->create($this->getTestToken());
 
         $this->assertEquals(1, $user->subscriptions()->count());
         $this->assertEquals(1, $user->invoices(true)->count());
