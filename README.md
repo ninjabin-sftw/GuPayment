@@ -287,6 +287,15 @@ return $user->downloadInvoice($invoiceId, [
     ]);
 ```
 
+### Reembolsar Fatura
+
+Para reembolsar uma fatura utilize o método `refund`.
+```php
+// Iugu aceita cobranças em centavos
+$user->refund($invoiceId);
+```
+
+
 ## Clientes e métodos de Pagamento (Cartões)
 
 Para gerenciar os métodos de pagamento, o cliente precisa existir no Iugu. Quando você utiliza o método `newSubscription` o cliente é criado automaticamente. Porém para criar um cliente manualmente, você pode utilizar o método `createAsIuguCustomer`.
@@ -382,12 +391,3 @@ $user->charge(null, [
 ```
 
 OBS: Se um array de items for passado no segundo argumento o item padrão não será adicionado.
-
-
-## Reembolsar Fatura
-
-Para reembolsar uma fatura utilize o método `refund`.
-```php
-// Iugu aceita cobranças em centavos
-$user->refund($invoiceId);
-```
