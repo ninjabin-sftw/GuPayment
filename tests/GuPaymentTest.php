@@ -12,7 +12,6 @@ use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Potelo\GuPayment\Http\Controllers\WebhookController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use PHPUnit\Framework\TestCase;
 
 
 class GuPaymentTest extends TestCase
