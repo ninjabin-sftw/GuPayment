@@ -2,6 +2,7 @@
 
 namespace Potelo\GuPayment;
 
+use Carbon\Carbon;
 use Iugu;
 use Exception;
 use Potelo\GuPayment\Card;
@@ -431,6 +432,40 @@ trait GuPaymentTrait
         }
 
         return null;
+    }
+
+    /**
+     * Create invoice.
+     *
+     * @param $amount
+     * @param $dueDate
+     * @param string $description
+     * @param array $options
+     * @return \Iugu_SearchResult|null
+     */
+    public function createInvoice($amount, $dueDate, $description = 'Nova fatura', array $options = [])
+    {
+        Iugu::setApiKey($this->getApiKey());
+
+        $options['due_date'] = $dueDate->format('Y-m-d');
+
+        $options['items'] = [
+            [
+                'description' => $description,
+                'quantity' => 1,
+                'price_cents' => $amount,
+            ]
+        ];
+
+        if (! array_key_exists('customer_id', $options) && $this->hasIuguId()) {
+            $options['customer_id'] = $this->getIuguUserId();
+        }
+
+        $invoice = \Iugu_Invoice::create(
+            $options
+        );
+
+        return $invoice;
     }
 
     /**

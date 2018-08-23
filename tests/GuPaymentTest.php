@@ -12,6 +12,8 @@ use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Potelo\GuPayment\Http\Controllers\WebhookController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use PHPUnit\Framework\TestCase;
+
 
 class GuPaymentTest extends TestCase
 {
@@ -618,6 +620,27 @@ class GuPaymentTest extends TestCase
         $this->assertEquals(1, $user->invoices(true)->count());
         $this->assertEquals('refunded', $user->invoices(true)->first()->status);
         $this->assertEquals(100, $user->invoices(true)->first()->total_cents);
+    }
+
+    public function testCreateInvoice()
+    {
+        $user = $this->createUser();
+
+        $user->createAsIuguCustomer($token = $this->getTestToken());
+
+        $options = ['payer' => [
+            'cpf_cnpj' => '169.893.520-00',
+            'address' => [
+                'zip_code' => '41150-120',
+                'number' => '1'
+            ],
+            'name' => $user->name
+        ]];
+
+        $invoice = $user->createInvoice(100, Carbon::now(), 'Um item', $options);
+
+        $this->assertEquals($invoice->payable_with, 'all');
+        $this->assertEquals($invoice->total, 'R$ 1,00');
     }
 
     protected function createUser()
