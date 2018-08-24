@@ -12,6 +12,7 @@ use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Potelo\GuPayment\Http\Controllers\WebhookController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use PHPUnit\Framework\TestCase;
 
 
 class GuPaymentTest extends TestCase
@@ -181,6 +182,24 @@ class GuPaymentTest extends TestCase
         $this->assertFalse($subscription->onGracePeriod());
         $this->assertTrue($subscription->onTrial());
         $this->assertEquals(Carbon::today()->addDays(7)->day, $subscription->trial_ends_at->day);
+    }
+
+    public function testCreatingSubscriptionWithDaysToExpire()
+    {
+        $user = $this->createUser();
+
+        // Create Subscription
+        $user->newSubscription('main', 'gold')
+            ->daysToExpire(5)->create();
+
+        $subscription = $user->subscription('main');
+
+        $this->assertTrue($subscription->active());
+        $this->assertFalse($subscription->onTrial());
+
+        $iuguSubsciption = $subscription->asIuguSubscription();
+
+        $this->assertEquals($iuguSubsciption->expires_at, Carbon::now()->addDays(5)->format('Y-m-d'));
     }
 
     public function testMarkingAsCancelledFromWebhook()

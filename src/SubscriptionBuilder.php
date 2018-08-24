@@ -43,6 +43,11 @@ class SubscriptionBuilder
     protected $skipTrial = false;
 
     /**
+     * @var int|null
+     */
+    protected $daysToExpire;
+
+    /**
      * The coupon code being applied to the customer.
      *
      * @var string|null
@@ -110,6 +115,19 @@ class SubscriptionBuilder
     public function skipTrial()
     {
         $this->skipTrial = true;
+
+        return $this;
+    }
+
+    /**
+     * Expires at in N days
+     *
+     * @param $daysToExpire
+     * @return $this
+     */
+    public function daysToExpire($daysToExpire)
+    {
+        $this->daysToExpire = $daysToExpire;
 
         return $this;
     }
@@ -242,9 +260,11 @@ class SubscriptionBuilder
             $customVariables[] = $additionalData;
         }
 
+        $endDate = $this->getEndDateForPayload();
+
         return array_filter([
             'plan_identifier' => $this->plan,
-            'expires_at' => $this->getTrialEndForPayload(),
+            'expires_at' => $endDate,
             'customer_id' => $customerId,
             'only_on_charge_success' => $this->chargeOnSuccess,
             'custom_variables' => $customVariables,
@@ -255,17 +275,39 @@ class SubscriptionBuilder
     /**
      * Get the trial ending date for the Iugu payload.
      *
-     * @return int|null
+     * @return Carbon|null
      */
-    protected function getTrialEndForPayload()
+    protected function getEndDateForPayload()
     {
+        $totalDays = $this->daysToExpire ? $this->daysToExpire : null;
+
         if ($this->skipTrial) {
-            return Carbon::now();
+            return $totalDays ? Carbon::now()->addDays($totalDays) : Carbon::now();
         }
 
-        if ($this->trialDays) {
+        if ($totalDays) {
+            $totalDays = $this->trialDays ? ($totalDays + $this->trialDays) : $totalDays;
+
+            return Carbon::now()->addDays($totalDays);
+        } elseif ($this->trialDays) {
             return Carbon::now()->addDays($this->trialDays);
         }
+
+        return null;
+    }
+
+    /**
+     * Get the expires_at date for the Iugu payload.
+     *
+     * @return Carbon|null
+     */
+    protected function getExpiresDateForPayload()
+    {
+        if ($this->daysToExpire) {
+            return Carbon::now()->addDays($this->trialDays);
+        }
+
+        return null;
     }
 
     public function chargeOnSuccess()
