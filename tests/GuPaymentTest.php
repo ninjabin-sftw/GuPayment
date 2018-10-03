@@ -660,6 +660,38 @@ class GuPaymentTest extends TestCase
         $this->assertEquals($invoice->total, 'R$ 1,00');
     }
 
+    public function testCreatingSubscriptionWithRecurrentDiscount()
+    {
+        $user = $this->createUser();
+
+        $item1 = [
+            'description' => 'Desconto recorrente',
+            'price_cents' => -900,
+            'quantity' => 1,
+            'recurrent' => true,
+        ];
+
+        $item2 = [
+            'description' => 'Adicional não recorrente',
+            'price_cents' => 250,
+            'quantity' => 1,
+            'recurrent' => false,
+        ];
+
+        $subItems = [$item1, $item2];
+
+        // Create Subscription
+        $user->newSubscription('main', 'gold')
+            ->payWith('credit_card')
+            ->addSubItems($subItems)
+            ->create($this->getTestToken());
+
+        $subscriptionIugu = $user->subscription('main')->asIuguSubscription();
+
+        $this->assertEquals(1, count($subscriptionIugu->subitems));
+        $this->assertArraySubset($item1, (array)$subscriptionIugu->subitems[0]);
+    }
+
     protected function createUser()
     {
         return User::create([

@@ -80,11 +80,24 @@ class SubscriptionBuilder
     private $validateCard = false;
 
     /**
+     * @var array|null
+     */
+    private $additionalData;
+
+    /**
+     * Additional items to subscription
+     *
+     * @var array|null
+     */
+    private $subItems = [];
+
+    /**
      * Create a new subscription builder instance.
      *
      * @param  mixed  $user
      * @param  string  $name
      * @param  string  $plan
+     * @param  array  $additionalData
      */
     public function __construct($user, $name, $plan, $additionalData)
     {
@@ -262,14 +275,20 @@ class SubscriptionBuilder
 
         $endDate = $this->getEndDateForPayload();
 
-        return array_filter([
+        $payload = [
             'plan_identifier' => $this->plan,
             'expires_at' => $endDate,
             'customer_id' => $customerId,
             'only_on_charge_success' => $this->chargeOnSuccess,
             'custom_variables' => $customVariables,
             'payable_with' => $this->payableWith
-        ]);
+        ];
+
+        if (!empty($this->subItems)) {
+            $payload['subitems'] = $this->subItems;
+        }
+
+        return array_filter($payload);
     }
 
     /**
@@ -356,6 +375,32 @@ class SubscriptionBuilder
     public function getLR()
     {
         return $this->lr;
+    }
+
+    /**
+     * Add sub items to subscription
+     *
+     * @param array $subItems
+     * @return $this
+     */
+    public function addSubItems($subItems)
+    {
+        $this->subItems = array_merge($this->subItems, $subItems);
+
+        return $this;
+    }
+
+    /**
+     * Add a sub item to subscription
+     *
+     * @param array $subItem
+     * @return $this
+     */
+    public function addSubItem($subItem)
+    {
+        $this->subItems[] = $subItem;
+
+        return $this;
     }
 
 }
