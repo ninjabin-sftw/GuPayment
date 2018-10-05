@@ -88,7 +88,7 @@ $user->newSubscription('main', 'gold')
 
 ### Assinatura com sub itens
 
-Para adicionar itens de cobrança a mais na assinatura do cliente, utilize o método `addSubItems`.
+Para adicionar itens de cobrança a mais na assinatura do cliente, utilize o método `subItems`.
 ```php
 $subItems = [
     [
@@ -107,7 +107,23 @@ $subItems = [
 
 // Create Subscription
 $user->newSubscription('main', 'gold')
-    ->addSubItems($subItems)
+    ->subItems($subItems)
+    ->create($creditCardToken);
+``` 
+
+Também é possível adicionar um item por vez, utilizando o método `addSubItem`.
+
+```php
+$subItem = [
+   'description' => 'Desconto recorrente',
+   'price_cents' => -900,
+   'quantity' => 1,
+   'recurrent' => true,
+];
+
+// Create Subscription
+$user->newSubscription('main', 'gold')
+    ->addSubItem($subItem)
     ->create($creditCardToken);
 ``` 
 
