@@ -383,7 +383,7 @@ class SubscriptionBuilder
      * @param array $subItems
      * @return $this
      */
-    public function addSubItems($subItems)
+    public function subItems($subItems)
     {
         $this->subItems = array_merge($this->subItems, $subItems);
 
