@@ -683,7 +683,7 @@ class GuPaymentTest extends TestCase
         // Create Subscription
         $user->newSubscription('main', 'gold')
             ->payWith('credit_card')
-            ->addSubItems($subItems)
+            ->subItems($subItems)
             ->create($this->getTestToken());
 
         $subscriptionIugu = $user->subscription('main')->asIuguSubscription();
