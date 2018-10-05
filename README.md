@@ -86,7 +86,7 @@ $user->newSubscription('main', 'gold')
 ->create($creditCardToken);
 ```
 
-### Assinatura com sub itens
+### Assinatura com subitens
 
 Para adicionar itens de cobrança a mais na assinatura do cliente, utilize o método `subItems`.
 ```php
