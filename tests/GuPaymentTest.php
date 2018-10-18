@@ -57,6 +57,7 @@ class GuPaymentTest extends TestCase
             $table->string('card_brand')->nullable();
             $table->string('card_last_four')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         $iuguSubscriptionModelIdColumn = getenv('IUGU_SUBSCRIPTION_MODEL_ID_COLUMN') ?: 'iugu_id';
@@ -690,6 +691,20 @@ class GuPaymentTest extends TestCase
 
         $this->assertEquals(1, count($subscriptionIugu->subitems));
         $this->assertArraySubset($item1, (array)$subscriptionIugu->subitems[0]);
+    }
+
+    public function testCanRetrieveSoftDeletedUser()
+    {
+        $user = $this->createUser();
+
+        // Create Subscription
+        $subscription = $user->newSubscription('main', 'gold')
+            ->payWith('credit_card')
+            ->create($this->getTestToken());
+
+        $user->delete();
+
+        $this->assertInstanceOf(User::class, $subscription->user);
     }
 
     protected function createUser()
