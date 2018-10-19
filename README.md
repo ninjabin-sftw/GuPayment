@@ -346,7 +346,11 @@ $user->createAsIuguCustomer();
 
 // Criar cliente no Iugu com token do cartão de crédito
 $user->createAsIuguCustomer($creditCardToken);
+```
 
+Para acessar o cliente do Iugu a partir do usuário, utilize o método `asIuguCustomer`:
+```php
+$iuguCustomer = $user->asIuguCustomer();
 ```
 
 Após ter um cliente cadastrado no Iugu, você pode gerenciar seus métodos de pagamento. Para criar um cartão utilize o método `createCard`:
