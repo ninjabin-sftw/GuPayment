@@ -2,10 +2,11 @@
 
 namespace Potelo\GuPayment\Tests\Fixtures;
 
-use Potelo\GuPayment\GuPaymentTrait as Billable;
-use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Potelo\GuPayment\GuPaymentTrait;
+use Illuminate\Database\Eloquent\Model;
 
-class User extends Eloquent
+class User extends Model
 {
-    use Billable;
+    use GuPaymentTrait, SoftDeletes;
 }

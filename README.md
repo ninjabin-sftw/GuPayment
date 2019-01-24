@@ -1,5 +1,6 @@
 # GuPayment
 
+[![Build Status](https://api.travis-ci.org/potelo/GuPayment.svg?branch=master)](https://travis-ci.org/Potelo/GuPayment)
 ## Introdução
 
 GuPayment é baseado no Laravel Cashier e fornece uma interface para controlar assinaturas do iugu.com
@@ -85,6 +86,47 @@ $user->newSubscription('main', 'gold')
 ->chargeOnSuccess()
 ->create($creditCardToken);
 ```
+
+### Assinatura com subitens
+
+Para adicionar itens de cobrança a mais na assinatura do cliente, utilize o método `subItems`.
+```php
+$subItems = [
+    [
+        'description' => 'Desconto recorrente',
+        'price_cents' => -900,
+        'quantity' => 1,
+        'recurrent' => true,
+    ],
+    [
+        'description' => 'Adicional não recorrente',
+        'price_cents' => 250,
+        'quantity' => 1,
+        'recurrent' => false,
+    ]
+];
+
+// Create Subscription
+$user->newSubscription('main', 'gold')
+    ->subItems($subItems)
+    ->create($creditCardToken);
+``` 
+
+Também é possível adicionar um item por vez, utilizando o método `addSubItem`.
+
+```php
+$subItem = [
+   'description' => 'Desconto recorrente',
+   'price_cents' => -900,
+   'quantity' => 1,
+   'recurrent' => true,
+];
+
+// Create Subscription
+$user->newSubscription('main', 'gold')
+    ->addSubItem($subItem)
+    ->create($creditCardToken);
+``` 
 
 #### Dados adicionais
 Se você desejar adicionar informações extras ao usuário e assinatura, basta passar um terceiro parâmetro no método `newSubscription` para informações adicionais da assinatura e/ou um segundo parâmetro no método `create` para informações adicionais do cliente:
@@ -305,7 +347,11 @@ $user->createAsIuguCustomer();
 
 // Criar cliente no Iugu com token do cartão de crédito
 $user->createAsIuguCustomer($creditCardToken);
+```
 
+Para acessar o cliente do Iugu a partir do usuário, utilize o método `asIuguCustomer`:
+```php
+$iuguCustomer = $user->asIuguCustomer();
 ```
 
 Após ter um cliente cadastrado no Iugu, você pode gerenciar seus métodos de pagamento. Para criar um cartão utilize o método `createCard`:

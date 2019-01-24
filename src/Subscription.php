@@ -45,6 +45,10 @@ class Subscription extends Model
         $model = getenv('IUGU_MODEL') ?: config('services.iugu.model');
         $column = getenv('IUGU_MODEL_FOREIGN_KEY') ?: config('services.iugu.model_foreign_key', 'user_id');
 
+        if (in_array("Illuminate\Database\Eloquent\SoftDeletes", class_uses($model))) {
+            return $this->belongsTo($model, $column)->withTrashed();
+        }
+
         return $this->belongsTo($model, $column);
     }
 
@@ -147,8 +151,8 @@ class Subscription extends Model
             $this->ends_at = $this->trial_ends_at;
         } else {
             $this->ends_at = is_null($subscription->expires_at)
-                             ? Carbon::now()
-                             : Carbon::createFromFormat('Y-m-d', $subscription->expires_at);
+                ? Carbon::now()
+                : Carbon::createFromFormat('Y-m-d', $subscription->expires_at);
         }
 
         $this->save();

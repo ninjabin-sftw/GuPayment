@@ -57,6 +57,7 @@ class GuPaymentTest extends TestCase
             $table->string('card_brand')->nullable();
             $table->string('card_last_four')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         $iuguSubscriptionModelIdColumn = getenv('IUGU_SUBSCRIPTION_MODEL_ID_COLUMN') ?: 'iugu_id';
@@ -658,6 +659,52 @@ class GuPaymentTest extends TestCase
 
         $this->assertEquals($invoice->payable_with, 'all');
         $this->assertEquals($invoice->total, 'R$ 1,00');
+    }
+
+    public function testCreatingSubscriptionWithRecurrentDiscount()
+    {
+        $user = $this->createUser();
+
+        $item1 = [
+            'description' => 'Desconto recorrente',
+            'price_cents' => -900,
+            'quantity' => 1,
+            'recurrent' => true,
+        ];
+
+        $item2 = [
+            'description' => 'Adicional não recorrente',
+            'price_cents' => 250,
+            'quantity' => 1,
+            'recurrent' => false,
+        ];
+
+        $subItems = [$item1, $item2];
+
+        // Create Subscription
+        $user->newSubscription('main', 'gold')
+            ->payWith('credit_card')
+            ->subItems($subItems)
+            ->create($this->getTestToken());
+
+        $subscriptionIugu = $user->subscription('main')->asIuguSubscription();
+
+        $this->assertEquals(1, count($subscriptionIugu->subitems));
+        $this->assertArraySubset($item1, (array)$subscriptionIugu->subitems[0]);
+    }
+
+    public function testCanRetrieveSoftDeletedUser()
+    {
+        $user = $this->createUser();
+
+        // Create Subscription
+        $subscription = $user->newSubscription('main', 'gold')
+            ->payWith('credit_card')
+            ->create($this->getTestToken());
+
+        $user->delete();
+
+        $this->assertInstanceOf(User::class, $subscription->user);
     }
 
     protected function createUser()
