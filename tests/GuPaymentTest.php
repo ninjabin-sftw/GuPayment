@@ -710,7 +710,7 @@ class GuPaymentTest extends TestCase
     protected function createUser()
     {
         return User::create([
-            'email' => $this->faker->email,
+            'email' => $this->faker->safeEmail,
             'name' => $this->faker->name,
         ]);
     }
