@@ -222,6 +222,13 @@ class SubscriptionBuilder
         } else {
             $customer = $this->user->asIuguCustomer();
 
+            if (!empty($options)) {
+                foreach($options as $key => $value){
+                    $customer->{$key} = $value;
+                }
+                $customer->save();
+            }
+
             if ($token) {
                 $this->user->updateCard($token);
             }
