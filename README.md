@@ -141,6 +141,8 @@ $user->newSubscription('main', 'gold', ['adicional_assinatura' => 'boa assinatur
 ```
 Para mais informações dos campos que são suportados pelo Iugu confira a [Documentação oficial](https://iugu.com/referencias/api#assinaturas)
 
+
+
 ### Tratamento de erros
 
 Caso algum erro seja gerado no Iugu, é possível identificar esses erros pelo método `getLastError` do SubscriptionBuilder:
@@ -216,6 +218,14 @@ if ($user->subscription('main')->onGracePeriod()) {
     //
 }
 ```
+
+
+Para utilizar o objeto do Iugu a partir da assinatura, utilize o método `asIuguSubscription`:
+
+```php
+$user->subscription('main')->asIuguSubscription();
+```
+
 
 ### Mudando o plano da assinatura
 Se um usuário já possui uma assinatura, ele pode querer mudar para algum outro plano. Por exemplo, um usuário do plano **gold** pode querer economizar e mudar para o plano **silver**. Para mudar o plano de um usuário em uma assinatura, basta usar o método `swap` da seguinte forma:
