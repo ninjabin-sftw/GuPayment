@@ -129,18 +129,28 @@ $user->newSubscription('main', 'gold')
 ``` 
 
 #### Dados adicionais
-Se você desejar adicionar informações extras ao usuário e assinatura, basta passar um terceiro parâmetro no método `newSubscription` para informações adicionais da assinatura e/ou um segundo parâmetro no método `create` para informações adicionais do cliente:
+Se você desejar adicionar informações extras à assinatura, basta passar um array como terceiro parâmetro no método `newSubscription`, que é repassado à API do Iugu no parâmetro `custom_variables`:
 ```php
 $user = User::find(1);
 
-$user->newSubscription('main', 'gold', ['adicional_assinatura' => 'boa assinatura'])
-     ->create(NULL, [
-	     'name' => $user->nome,
-	     'adicional_cliente' => 'bom cliente'
-	 ]);
+$user->newSubscription('main', 'gold', [
+    'adicional_assinatura' => 'boa assinatura'
+])->create(NULL);
 ```
-Para mais informações dos campos que são suportados pelo Iugu confira a [Documentação oficial](https://iugu.com/referencias/api#assinaturas)
 
+#### Outros parâmetros
+Para customizar os parâmetros enviados à API, passe um array no quarto parâmetro do método `newSubscription` para a criação da assinatura, e/ou no segundo parâmetro do método `create` para a criação do cliente:
+```php
+$user = User::find(1);
+
+$user->newSubscription('main', 'gold', null, ['ignore_due_email' => true])
+    ->create(NULL, [
+        'name' => $user->nome,
+        'notes' => 'Anotações gerais'
+    ]);
+```
+
+Para mais informações dos parâmetros que são suportados pela API do Iugu, confira a [Documentação oficial](https://dev.iugu.com/reference#criar-assinatura)
 
 
 ### Tratamento de erros
