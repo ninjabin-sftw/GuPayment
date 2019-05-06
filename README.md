@@ -143,7 +143,7 @@ Para customizar os parâmetros enviados à API, passe um array no quarto parâme
 ```php
 $user = User::find(1);
 
-$user->newSubscription('main', 'gold', null, ['ignore_due_email' => true])
+'$user->newSubscription('main', 'gold', [], ['ignore_due_email' => true])
     ->create(NULL, [
         'name' => $user->nome,
         'notes' => 'Anotações gerais'

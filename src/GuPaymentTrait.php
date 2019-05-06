@@ -2,10 +2,8 @@
 
 namespace Potelo\GuPayment;
 
-use Carbon\Carbon;
 use Iugu;
 use Exception;
-use Potelo\GuPayment\Card;
 use InvalidArgumentException;
 use Iugu_Charge as IuguCharge;
 use Iugu_Invoice as IuguInvoice;
@@ -13,6 +11,7 @@ use Iugu_Customer as IuguCustomer;
 use Illuminate\Support\Collection;
 use Iugu_Subscription as IuguSubscription;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
 
 trait GuPaymentTrait
 {
@@ -118,9 +117,9 @@ trait GuPaymentTrait
         return new Collection($cards);
     }
 
-    public function newSubscription($subscription, $plan, $additionalData = [])
+    public function newSubscription($subscription, $plan, $additionalData = [], $options = [])
     {
-        return new SubscriptionBuilder($this, $subscription, $plan, $additionalData);
+        return new SubscriptionBuilder($this, $subscription, $plan, $additionalData, $options);
     }
 
     /**
