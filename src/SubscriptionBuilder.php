@@ -304,7 +304,12 @@ class SubscriptionBuilder
             $payload['subitems'] = $this->subItems;
         }
 
-        return array_filter(array_merge($payload, $this->options ?? []));
+        $options = [];
+        if (!is_null($this->options)) {
+            $options = $this->options;
+        }
+
+        return array_filter(array_merge($payload, $options));
     }
 
     /**
