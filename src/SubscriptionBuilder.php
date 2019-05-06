@@ -92,19 +92,28 @@ class SubscriptionBuilder
     private $subItems = [];
 
     /**
+     * Options that will be sent to the API
+     *
+     * @var array|null
+     */
+    private $options = null;
+
+    /**
      * Create a new subscription builder instance.
      *
      * @param  mixed  $user
      * @param  string  $name
      * @param  string  $plan
      * @param  array  $additionalData
+     * @param  array  $options
      */
-    public function __construct($user, $name, $plan, $additionalData)
+    public function __construct($user, $name, $plan, $additionalData, $options)
     {
         $this->user = $user;
         $this->name = $name;
         $this->plan = $plan;
         $this->additionalData = $additionalData;
+        $this->options = $options;
     }
 
     /**
@@ -295,7 +304,7 @@ class SubscriptionBuilder
             $payload['subitems'] = $this->subItems;
         }
 
-        return array_filter($payload);
+        return array_filter(array_merge($payload, $this->options ?? []));
     }
 
     /**
