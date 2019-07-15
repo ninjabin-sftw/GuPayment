@@ -9,9 +9,15 @@
             "email": "gabriel@potelo.com.br"
         }
     ],
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/ninjabin-sftw/iugu-php.git"
+        }
+    ],
     "require": {
         "php": ">=5.6",
-        "iugu/iugu": "1.0.6",
+        "iugu/iugu": "dev-master",
         "dompdf/dompdf": "^0.8.0"
     },
     "require-dev": {
